@@ -55,8 +55,8 @@ export default function Home() {
     try {
       // In production window.location.origin wouldn't always match the backend,
       // but assuming proxy or absolute URL depending on deployment env. 
-      // For now, defaulting to standard dev config:
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/predict';
+      // Using an environment variable or falling back to a production Render URL if available.
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://pravah-practice.onrender.com/predict';
 
       const res = await fetch(apiUrl, {
         method: 'POST',
