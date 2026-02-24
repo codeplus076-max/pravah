@@ -4,7 +4,7 @@ import { useState } from 'react';
 
 export default function Home() {
   const [formData, setFormData] = useState({
-    location: 'vashi', // Default to a popular node
+    location: 'vashi',
     area_sqft: 1000,
     bhk: 2,
     bathrooms: 2,
@@ -41,8 +41,8 @@ export default function Home() {
   };
 
   const summarizePrice = (value: number) => {
-    if (value >= 10000000) return `₹ ${(value / 10000000).toFixed(2)} Cr`;
-    if (value >= 100000) return `₹ ${(value / 100000).toFixed(2)} L`;
+    if (value >= 10000000) return `₹${(value / 10000000).toFixed(2)} Cr`;
+    if (value >= 100000) return `₹${(value / 100000).toFixed(2)} L`;
     return formatCurrency(value);
   };
 
@@ -51,11 +51,7 @@ export default function Home() {
     setLoading(true);
     setError('');
 
-    // Attempt to hit the backend running on port 8000
     try {
-      // In production window.location.origin wouldn't always match the backend,
-      // but assuming proxy or absolute URL depending on deployment env. 
-      // Using an environment variable or falling back to a production Render URL if available.
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://pravah-a3d1.onrender.com/predict';
 
       const res = await fetch(apiUrl, {
@@ -71,177 +67,210 @@ export default function Home() {
       }
 
       const data = await res.json();
-      setResult(data);
+
+      // Simulate slight delay for animation effect
+      setTimeout(() => {
+        setResult(data);
+        setLoading(false);
+      }, 600);
+
     } catch (err: any) {
       setError(err.message || 'An error occurred during prediction.');
-    } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="container">
-      <header className="header">
-        <h1 className="title">PropSight NM</h1>
-        <p className="subtitle">AI-Powered Real Estate Valuation for Navi Mumbai. Get instant, highly accurate property estimates based on historical transaction data.</p>
-      </header>
+    <div className="layout-wrapper">
+      <nav className="navbar">
+        <div className="logo">
+          <span>❖</span> PropSight NM
+        </div>
+        <div className="nav-links">
+          <a href="#">Home</a>
+          <a href="#">Market Trends</a>
+          <a href="#">API</a>
+        </div>
+      </nav>
 
-      <main className="main-content">
-        <section className="card">
-          <form onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label htmlFor="location">Micro-Market Location</label>
-              <select
-                id="location"
-                name="location"
-                value={formData.location}
-                onChange={handleChange}
-              >
-                {localities.map(loc => (
-                  <option key={loc} value={loc}>
-                    {loc.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
-                  </option>
-                ))}
-              </select>
+      <div className="container">
+        <header className="hero-section">
+          <h1 className="title">
+            Navi Mumbai Real Estate, <br />
+            <span className="title-highlight">Valued by AI</span>
+          </h1>
+          <p className="subtitle">
+            Leveraging gradient boosting and historical market transactions to give you instant, accurate property valuations across Navi Mumbai's rapidly growing nodes.
+          </p>
+          <div className="feature-tags">
+            <div className="tag">XGBoost ML Engine</div>
+            <div className="tag">95%+ Confidence</div>
+            <div className="tag">Updated Real-Time</div>
+          </div>
+        </header>
+
+        <main className="main-content">
+          <section className="card form-container">
+            <div className="form-header">
+              <h2>Property Details</h2>
+              <p>Enter the specifications of your property to get an estimate.</p>
             </div>
 
-            <div className="form-row">
+            <form onSubmit={handleSubmit}>
               <div className="form-group">
-                <label htmlFor="area_sqft">Carpet Area (Sq Ft)</label>
-                <input
-                  type="number"
-                  id="area_sqft"
-                  name="area_sqft"
-                  value={formData.area_sqft}
+                <label htmlFor="location">Micro-Market Node</label>
+                <select
+                  id="location"
+                  name="location"
+                  value={formData.location}
                   onChange={handleChange}
-                  min="100"
-                  max="10000"
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="bhk">Configurations (BHK)</label>
-                <select id="bhk" name="bhk" value={formData.bhk} onChange={handleChange}>
-                  <option value="1">1 BHK</option>
-                  <option value="2">2 BHK</option>
-                  <option value="3">3 BHK</option>
-                  <option value="4">4+ BHK</option>
+                >
+                  {localities.map(loc => (
+                    <option key={loc} value={loc}>
+                      {loc.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
+                    </option>
+                  ))}
                 </select>
               </div>
-            </div>
 
-            <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="bathrooms">Bathrooms</label>
-                <input
-                  type="number"
-                  id="bathrooms"
-                  name="bathrooms"
-                  value={formData.bathrooms}
-                  onChange={handleChange}
-                  min="1"
-                  max="10"
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="age_of_property">Property Age (Years)</label>
-                <input
-                  type="number"
-                  id="age_of_property"
-                  name="age_of_property"
-                  value={formData.age_of_property}
-                  onChange={handleChange}
-                  min="0"
-                  max="50"
-                  step="0.1"
-                />
-              </div>
-            </div>
-
-            <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="floor">Floor Number</label>
-                <input
-                  type="number"
-                  id="floor"
-                  name="floor"
-                  value={formData.floor}
-                  onChange={handleChange}
-                  min="0"
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="total_floors">Total Floors in Building</label>
-                <input
-                  type="number"
-                  id="total_floors"
-                  name="total_floors"
-                  value={formData.total_floors}
-                  onChange={handleChange}
-                  min="1"
-                />
-              </div>
-            </div>
-
-            <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="parking">Parking Included?</label>
-                <select id="parking" name="parking" value={formData.parking} onChange={handleChange}>
-                  <option value="1">Yes</option>
-                  <option value="0">No</option>
-                </select>
-              </div>
-              <div className="form-group">
-                <label htmlFor="lift">Lift Available?</label>
-                <select id="lift" name="lift" value={formData.lift} onChange={handleChange}>
-                  <option value="1">Yes</option>
-                  <option value="0">No</option>
-                </select>
-              </div>
-            </div>
-
-            <button type="submit" className="btn" disabled={loading}>
-              {loading ? 'Analyzing Market Data...' : 'Get Valuation'}
-            </button>
-            {error && <p style={{ color: '#f43f5e', marginTop: '1rem', textAlign: 'center' }}>{error}</p>}
-          </form>
-        </section>
-
-        <section className="card results-container">
-          {loading ? (
-            <div className="result-empty">
-              <div className="loading-spinner"></div>
-              <h3>Calculating Valuation</h3>
-              <p>Running multi-dimensional XGBoost regression against Navimumbai real-estate benchmarks...</p>
-            </div>
-          ) : result ? (
-            <div className="result-box">
-              <p className="price-label">Estimated Market Value</p>
-              <h2 className="price-value">{summarizePrice(result.predicted_price)}</h2>
-              <p className="price-range">Range: {summarizePrice(result.low_estimate)} — {summarizePrice(result.high_estimate)}</p>
-
-              <div className="metrics-grid" style={{ marginTop: '2.5rem' }}>
-                <div className="metric-item">
-                  <p className="metric-label">Rate (Per Sq Ft)</p>
-                  <p className="metric-value">{formatCurrency(result.price_per_sqft)}</p>
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="area_sqft">Carpet Area (Sq Ft)</label>
+                  <input
+                    type="number"
+                    id="area_sqft"
+                    name="area_sqft"
+                    value={formData.area_sqft}
+                    onChange={handleChange}
+                    min="100"
+                    max="10000"
+                    required
+                  />
                 </div>
-                <div className="metric-item">
-                  <p className="metric-label">Confidence Score</p>
-                  <p className={`metric-value ${result.confidence_score > 90 ? 'confidence-high' : ''}`}>
-                    {result.confidence_score.toFixed(1)}%
-                  </p>
+                <div className="form-group">
+                  <label htmlFor="bhk">Configurations (BHK)</label>
+                  <select id="bhk" name="bhk" value={formData.bhk} onChange={handleChange}>
+                    <option value="1">1 BHK</option>
+                    <option value="2">2 BHK</option>
+                    <option value="3">3 BHK</option>
+                    <option value="4">4+ BHK</option>
+                  </select>
                 </div>
               </div>
-            </div>
-          ) : (
-            <div className="result-empty">
-              <div className="result-icon">✦</div>
-              <h3>Awaiting Analysis</h3>
-              <p>Fill out the property details and click "Get Valuation" to generate an AI-powered price prediction instantly.</p>
-            </div>
-          )}
-        </section>
-      </main>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="bathrooms">Bathrooms</label>
+                  <input
+                    type="number"
+                    id="bathrooms"
+                    name="bathrooms"
+                    value={formData.bathrooms}
+                    onChange={handleChange}
+                    min="1"
+                    max="10"
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="age_of_property">Property Age (Years)</label>
+                  <input
+                    type="number"
+                    id="age_of_property"
+                    name="age_of_property"
+                    value={formData.age_of_property}
+                    onChange={handleChange}
+                    min="0"
+                    max="50"
+                    step="0.1"
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="floor">Floor Number</label>
+                  <input
+                    type="number"
+                    id="floor"
+                    name="floor"
+                    value={formData.floor}
+                    onChange={handleChange}
+                    min="0"
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="total_floors">Total Floors in Building</label>
+                  <input
+                    type="number"
+                    id="total_floors"
+                    name="total_floors"
+                    value={formData.total_floors}
+                    onChange={handleChange}
+                    min="1"
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="parking">Parking Covered</label>
+                  <select id="parking" name="parking" value={formData.parking} onChange={handleChange}>
+                    <option value="1">Yes</option>
+                    <option value="0">No</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label htmlFor="lift">Lift Access</label>
+                  <select id="lift" name="lift" value={formData.lift} onChange={handleChange}>
+                    <option value="1">Yes</option>
+                    <option value="0">No</option>
+                  </select>
+                </div>
+              </div>
+
+              <button type="submit" className="btn" disabled={loading}>
+                {loading ? 'Analyzing Market Vectors...' : 'Calculate Valuation'}
+              </button>
+              {error && <p style={{ color: '#EF4444', marginTop: '1rem', textAlign: 'center', fontSize: '0.9rem' }}>{error}</p>}
+            </form>
+          </section>
+
+          <section className="card results-container">
+            {loading ? (
+              <div className="result-empty">
+                <div className="loading-spinner"></div>
+                <h3>Processing Analysis</h3>
+                <p style={{ fontSize: '0.9rem', maxWidth: '300px' }}>Running multi-dimensional XGBoost regression against Navi Mumbai real-estate benchmarks...</p>
+              </div>
+            ) : result ? (
+              <div className="result-box">
+                <p className="price-label">Estimated Market Value</p>
+                <h2 className="price-value">{summarizePrice(result.predicted_price)}</h2>
+                <div className="price-range">Range: {summarizePrice(result.low_estimate)} — {summarizePrice(result.high_estimate)}</div>
+
+                <div className="metrics-grid">
+                  <div className="metric-item">
+                    <p className="metric-label">Rate (Per Sq Ft)</p>
+                    <p className="metric-value">{formatCurrency(result.price_per_sqft)}</p>
+                  </div>
+                  <div className="metric-item">
+                    <p className="metric-label">Confidence</p>
+                    <p className={`metric-value ${result.confidence_score > 90 ? 'confidence-high' : ''}`}>
+                      {result.confidence_score.toFixed(1)}%
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="result-empty">
+                <div className="result-icon">✧</div>
+                <h3>Awaiting Details</h3>
+                <p style={{ fontSize: '0.9rem', maxWidth: '300px' }}>Select your property parameters and click the calculate button to see the AI inference.</p>
+              </div>
+            )}
+          </section>
+        </main>
+      </div>
     </div>
   );
 }
